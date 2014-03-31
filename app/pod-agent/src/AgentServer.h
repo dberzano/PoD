@@ -43,7 +43,7 @@ namespace PROOFAgent
             {
                 ss
                         << m_user << "@" << m_host << ":" << m_xpdPort
-                        << "(ip:" << m_ipv4 << ")"
+                        << "(IPv4:" << m_ipv4 << ")"
                         << "[id:" << m_id << "]";
             }
             else

@@ -805,7 +805,7 @@ void CAgentServer::createClientNode( workersMap_t::value_type &_wrk )
     string strPROOFCfgString( createPROOFCfgEntryString( _wrk.second.m_user,
                                                          port,
                                                          strRealWrkHost,
-                                                         "0.1.2.3",
+                                                         "1.2.3.5",
                                                          true,
                                                          startup ) );
 
@@ -844,15 +844,22 @@ void CAgentServer::createPROOFCfg()
     if( !f.is_open() )
         throw runtime_error( "can't open " + proofCfg + " for writing." );
 
-    // getting local host name
-    string host;
+    // getting local host name and IPv4 address
+    string host, ipv4;
     MiscCommon::get_hostname( &host );
+    if ( MiscCommon::get_outipv4( &ipv4 ) != 0 )
+        ipv4 = "1.2.3.6";  // this signals an error
+
+    // pattern for the master entry
+    string masterTmpl( m_Data.m_proofCfgMasterPattern );
+    replace<string>( &masterTmpl, "%host%", host );
+    replace<string>( &masterTmpl, "%ipv4%", ipv4 );
 
     // master host name is the same for Server and Worker and equal to local host name
     stringstream ss;
     ss
-            << "#master " << host << "\n"
-            << "master " << host;
+            << "#master " << host << " (IPv4: " << ipv4 << ")" << "\n"
+            << masterTmpl;
 
     m_masterEntryInPROOFCfg = ss.str();
 
@@ -929,7 +936,8 @@ string CAgentServer::createPROOFCfgEntryString( const string &_UsrName,
 
             ss
                     << "#worker " << _UsrName << "@" << _RealWrkHost
-                    << ":" << _Port << " (direct connection)"
+                    << ":" << _Port << " (IPv4: " << _RealWrkIPv4 << ")"
+                    << " (direct connection)"
                     << ssStartupTime.str() << "\n"
                     << entryTmpl;
         }
