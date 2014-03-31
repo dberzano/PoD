@@ -730,7 +730,18 @@ void CAgentServer::setupPROOFWorker( workersMap_t::value_type &_wrk )
     try
     {
         inet::CSocketClient c;
-        c.connect( _wrk.second.m_xpdPort, _wrk.second.m_host );
+        string *hostOrIp;
+
+        if ( m_Data.m_useIpInsteadOfHost )
+            hostOrIp = &( _wrk.second.m_ipv4 );
+        else
+            hostOrIp = &( _wrk.second.m_host );
+
+        stringstream ss;
+        ss << "Attempting to establish a direct connection with xproofd on "
+           << *hostOrIp << ":" << _wrk.second.m_xpdPort;
+        DebugLog( 0, ss.str() );
+        c.connect( _wrk.second.m_xpdPort, *hostOrIp );
     }
     catch( ... )  // we got a problem to connect to a worker
     {
@@ -992,7 +1003,11 @@ void CAgentServer::createServerInfoFile()
     }
 
     string srvHost;
-    get_hostname( &srvHost );
+    if ( m_Data.m_useIpInsteadOfHost )
+        get_outipv4( &srvHost );
+    else
+        get_hostname( &srvHost );
+
     string srvUser;
     get_cuser_name( &srvUser );
 
