@@ -123,6 +123,8 @@ int CAgentClient::processProtocolMsgs( int _serverSock, CProtocol * _protocol )
                 InfoLog( "Server requests host information." );
                 SHostInfoCmd h;
                 get_cuser_name( &h.m_username );
+                if ( get_outipv4( &h.m_ipv4 ) != 0 )
+                    h.m_ipv4 = "1.2.3.4";  // this signals an error
                 get_hostname( &h.m_host );
                 h.m_xpdPort = m_xpdPort;
                 // retrieve submit time

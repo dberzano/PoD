@@ -43,6 +43,7 @@ namespace PROOFAgent
             {
                 ss
                         << m_user << "@" << m_host << ":" << m_xpdPort
+                        << "(ip:" << m_ipv4 << ")"
                         << "[id:" << m_id << "]";
             }
             else
@@ -54,6 +55,7 @@ namespace PROOFAgent
         }
         CProtocol m_protocol;
         std::string m_host;
+        std::string m_ipv4;
         std::string m_user;
         uint16_t m_xpdPort;
         std::string m_proofCfgEntry;
@@ -151,6 +153,7 @@ namespace PROOFAgent
             std::string createPROOFCfgEntryString( const std::string &_UsrName,
                                                    unsigned short _Port,
                                                    const std::string &_RealWrkHost,
+                                                   const std::string &_RealWrkIPv4,
                                                    bool usePF,
                                                    long _startupTime = 0,
                                                    unsigned int _numberOfPROOFWorkers = 1 );

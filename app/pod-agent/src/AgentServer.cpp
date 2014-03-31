@@ -664,8 +664,10 @@ void CAgentServer::processProtocolMsgs( workersMap_t::value_type &_wrk )
         case cmdHOST_INFO:
             {
                 SHostInfoCmd h;
+
                 h.convertFromData( data );
                 _wrk.second.m_host = h.m_host;
+                _wrk.second.m_ipv4 = h.m_ipv4;
                 _wrk.second.m_user = h.m_username;
                 _wrk.second.m_xpdPort = h.m_xpdPort;
 
@@ -761,7 +763,7 @@ void CAgentServer::setupPROOFWorker( workersMap_t::value_type &_wrk )
     // Update proof.cfg with active workers
     _wrk.second.m_proofCfgEntry =
         createPROOFCfgEntryString( _wrk.second.m_user, _wrk.second.m_xpdPort,
-                                   _wrk.second.m_host, false,
+                                   _wrk.second.m_host, _wrk.second.m_ipv4, false,
                                    startup,
                                    _wrk.second.m_numberOfPROOFWorkers );
     // Update proof.cfg according to a current number of active workers
@@ -803,6 +805,7 @@ void CAgentServer::createClientNode( workersMap_t::value_type &_wrk )
     string strPROOFCfgString( createPROOFCfgEntryString( _wrk.second.m_user,
                                                          port,
                                                          strRealWrkHost,
+                                                         "0.1.2.3",
                                                          true,
                                                          startup ) );
 
@@ -844,6 +847,7 @@ void CAgentServer::createPROOFCfg()
     // getting local host name
     string host;
     MiscCommon::get_hostname( &host );
+
     // master host name is the same for Server and Worker and equal to local host name
     stringstream ss;
     ss
@@ -858,6 +862,7 @@ void CAgentServer::createPROOFCfg()
 string CAgentServer::createPROOFCfgEntryString( const string &_UsrName,
                                                 unsigned short _Port,
                                                 const string &_RealWrkHost,
+                                                const string &_RealWrkIPv4,
                                                 bool _usePF,
                                                 long _startupTime,
                                                 unsigned int _numberOfPROOFWorkers )
@@ -906,6 +911,7 @@ string CAgentServer::createPROOFCfgEntryString( const string &_UsrName,
 
         replace<string>( &entryTmpl, "%user%", _UsrName );
         replace<string>( &entryTmpl, "%host%", "localhost" );
+        replace<string>( &entryTmpl, "%ipv4%", "127.0.0.1" );
         replace<string>( &entryTmpl, "%port%", ss_port.str() );
         ss << entryTmpl;
     }
@@ -913,6 +919,7 @@ string CAgentServer::createPROOFCfgEntryString( const string &_UsrName,
     {
         replace<string>( &entryTmpl, "%user%", _UsrName );
         replace<string>( &entryTmpl, "%host%", _RealWrkHost );
+        replace<string>( &entryTmpl, "%ipv4%", _RealWrkIPv4 );
         replace<string>( &entryTmpl, "%port%", ss_port.str() );
 
         for( size_t i = 0; i < _numberOfPROOFWorkers; ++i )
